@@ -1,0 +1,5 @@
+venv
+*.env
+Templates
+src/web/static/images/employees
+src/migrations/versions/*.py

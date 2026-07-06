@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:16
+    env_file:
+      - ./pg.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+
+
+  web:
+    build: .
+    volumes:
+      - ./src:/src
+    ports:
+      - "8000:80"
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

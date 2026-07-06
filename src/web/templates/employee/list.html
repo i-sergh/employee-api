@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реестр сотрудников</title>
+        <script src="{{ url_for('static', path='js/employee/list.js') }}" defer></script>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/employee/list.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Реестр сотрудников</h1>
+            <button class="btn btn-primary" id="addBtn">+ Добавить сотрудника</button>
+        </header>
+
+        <div class="controls">
+            <div class="search-wrapper">
+                <input type="text" id="searchInput" placeholder="Поиск по ФИО, телефону" class="search-input">
+                <!-- <button id="searchBtn" class="btn btn-search">Найти</button> -->
+            </div>
+            <div class="filter-group sub-group">
+                <div class="filter-group">
+                    <span class="filter-label">Пол:</span>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="filterMale" value="муж." checked> Муж.
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="filterFemale" value="жен." checked> Жен.
+                    </label>
+                </div>
+            
+                <div class="filter-group">
+                    <span class="filter-label">Возраст:</span>
+                    <input type="number" id="ageFrom" placeholder="от" class="age-input" min="0" max="120">
+                    <input type="number" id="ageTo" placeholder="до" class="age-input" min="0" max="120">
+                </div>
+            </div>
+            <div class="filter-group draft-filter">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="showDrafts">
+                    Показывать черновики
+                </label>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table class="employee-table">
+                <thead>
+                    <tr>
+                        <th>№ id</th>
+                        <th>Фото</th>
+                        <th>ФИО</th>
+                        <th>Возраст</th>
+                        <th>Телефон</th>
+                        <th>Пол</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody id="employeeTableBody">
+                    <!-- Строки вставляются из js  -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination-wrapper">
+            
+            <div class="pagination" id="paginationControls">
+                
+            </div>
+            <div class="per-page-selector">
+                <span>Показывать:</span>
+                <button class="per-page-btn active" data-per-page="10">10</button>
+                <button class="per-page-btn" data-per-page="25">25</button>
+                <button class="per-page-btn" data-per-page="50">50</button>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>
