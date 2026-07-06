@@ -22,7 +22,7 @@ router = APIRouter(prefix="/admin", tags=["Admin"])
 @router.post("/generate-employees")
 async def generate_employees(db:Annotated[AsyncSession, Depends(get_async_session)]):
     """
-    Генерирует 165 тестовых сотрудников.
+    Генерирует 165 тестовых сотрудников из заготовленного списка.
     """
     created_count = 0
     errors = []
@@ -53,6 +53,9 @@ async def generate_employees(db:Annotated[AsyncSession, Depends(get_async_sessio
 @router.delete("/delete-all-employees")
 async def delete_employees( db:Annotated[AsyncSession, Depends(get_async_session)],
                             r_u_sure:bool=False):
+    """
+    Удаляет все записи из модели Employee
+    """
     sql = Delete(e_models.Employee)
     await db.execute(sql)
     await db.commit()

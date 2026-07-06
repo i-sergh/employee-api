@@ -1,21 +1,213 @@
-## git
-git clone
+# Реестр сотрудников — тестовое задание
 
-# env files
+Веб-приложение для ведения реестра сотрудников, разработанное в рамках тестового задания для компании **«Астром»**.
+
+Проект представляет собой полноценный CRUD-сервис с возможностью создания, редактирования, удаления и просмотра сотрудников, а также фильтрацией, пагинацией, поиском и загрузкой фотографий.
+
+### Функциональность
+
+- Список сотрудников с пагинацией и полнотекстовым поиском по ФИО и номкру телефона
+- Фильтрация по полу, возрасту, статусу публикации
+- Создание и редактирование сотрудников с валидацией данных
+- Поддержка черновиков 
+- Удобный и адаптивный интерфейс
+
+### Стек технологий
+
+- **Backend:** Python 3.12+, FastAPI, SQLAlchemy, Alembic, PostgreSQL
+- **Frontend:** Jinja2, CSS, JS
+- **DevOps:** Docker, docker-compose
+- **Тестирование:** pytest, pytest-asyncio
+
+## Установка и запуск
+
+### 1. Клонирование репозитория
+
+```bash
+git clone https://github.com/i-sergh/employee-api
+cd employee-api
+```
+
+### 2. Настройка файлов окружения
+
+#### 2.1 Файл `pg.env`
+Настройте файл `pg.env` с параметрами подключения к основной базе PostgreSQL. Эти переменные используются в `docker-compose.yaml`.
+
+Для удобства в проекте уже есть файл-шаблон `pg.env.example`. Скопируйте его и заполните своими значениями:
+
+```bash
+cp pg.env.example pg.env
+```
+
+Его структура:
+```env
+POSTGRES_USER=postgres      # имя пользователя
+POSTGRES_PASSWORD=postgres  # пароль пользователя
+POSTGRES_DB=postgres        # имя основной базы
+```
+
+#### 2.2 Тестовая база данных
+
+При первом запуске контейнера создаётся тестовая база данных через скрипт `init-db/init-test-db.sql`.
+
+Чтобы изменить имя тестовой базы, отредактируйте соответствующий SQL-файл `init-test-db.sql`:
+
+```sql
+CREATE DATABASE test_base_name;
+```
+
+#### 2.3 Файл `src/.env`
+Настройте файл `src/.env` с параметрами проекта. Переменные используются в проекте через `src/config.py`. 
+
+Для удобства в проекте уже есть файл-шаблон `src/.env.example`. Скопируйте его и заполните своими значениями:
+
+```bash
+cp src/.env.example src/.env
+```
+
+Его структура:
+
+```env
+PG_HOST=postgres                                     # имя источника базы данных
+PG_PORT=5432                                         # порт бд
+PG_NAME=postgres                                     # имя основной бд
+PG_USER=postgres                                     # имя пользователя бд
+PG_PASS=postgres                                     # пароль пользователя бд
+PG_TEST_NAME=postgres_test                           # имя тестовой бд (пользватель и пароль должны совпадать)
+
+IMG_DEFAULT='images/default/default.png'             # путь до дефолтного изображения 
+IMG_DEFAULT_MINI='images/default/default_mini.png'   # путь до дефолтной миниатюры
+IMG_UPLOAD_DIR='images/employees/'                   # путь сохранения изображений сотрудников
+STATIC_DIR='web/static'                              # путь со статическими файлами
+```
+
+### 3. Запуск через Docker Compose
+Для запуска проекта выполните команду:
+
+```bash
+sudo docker-compose up -d
+```
+
+Для проверки статуса контейнеров выполните команду:
+```bash
+sudo docker-compose ps
+```
+
+Для просмотра логов онтейнеров выполните команду:
+```bash
+sudo docker-compose logs web
+```
+
+Для остановки выполните команду:
+```bash
+sudo docker-compose down
+```
 
 
-# docker-compose
-sudo docker-compose up
+### 4. Миграции базы данных (Alembic)
 
-## Alembic
+Для управления схемой базы данных используется Alembic. Все команды выполняются внутри контейнера `web`.
 
-sudo docker-compose exec web alembic revision --autogenerate -m "message"
+**Перед началом работы необходимо создать и применить первую миграцию** для создания необходимых таблиц в базе данных.
 
+#### 4.1 Формирование первой миграции:
+```bash
+sudo docker-compose exec web alembic revision --autogenerate -m "init migration"
+```
+
+#### 4.2 Применение миграции
+```bash
 sudo docker-compose exec web alembic upgrade head
+```
 
+#### 4.3 Проверка текущей версии
+```bash
 sudo docker-compose exec web alembic current
+```
+
+### 5. Тестирование (Pytest)
+
+Для запуска тестов выполните команду:
+
+```bash
+sudo docker-compose exec web pytest tests/ --forked
+```
+
+**Примечание:** перед запуском тестов убедитесь, что контейнеры запущены и миграции применены.
 
 
-## Pytest
+## Структура проекта
 
-sudo docker-compose exec web pytest -s tests/ --forked
+```text
+src/
+├── admin/                          # Административные эндпоинты
+│   ├── employees_data.py           # Список тестовых сотрудников (165 записей)
+│   └── router.py                   # Эндпоинты администратора 
+│
+├── employee/                       # Основной модуль сотрудников
+│   ├── crud.py                     # CRUD-операции с БД
+│   ├── models.py                   # SQLAlchemy-модель Employee
+│   ├── router.py                   # API-эндпоинты 
+│   ├── schemas.py                  # Pydantic-схемы для валидации
+│   └── wrapers.py                  # Декораторы 
+│
+├── web/                            # Веб-интерфейс 
+│   ├── router.py                   # Роутер для HTML-страниц
+│   ├── static/                     # Статические файлы
+│   │   ├── css/employee/           # Стили для страниц (edit.css, list.css)
+│   │   ├── js/employee/            # Скрипты (edit.js, list.js)
+│   │   └── images/                 # Изображения
+│   │       ├── default/            # Дефолтные аватарки
+│   │       └── employees/          # Аватарки сотрудников (по папкам с их ID)
+│   └── templates/employee/         # Jinja2-html-шаблоны (edit.html, list.html)
+│
+├── migrations/                     # Миграции Alembic
+│   ├── env.py                      # Конфигурация Alembic
+│   ├── script.py.mako              # Шаблон для генерации миграций
+│   └── versions/                   # Файлы миграций
+│
+├── tests/                          # Тесты
+│   ├── conftest.py                 # Фикстуры для pytest
+│   └── test_db_connection.py       # Тест подключения к БД
+│
+├── config.py                       # Загрузка переменных окружения
+├── database.py                     # Настройка подключения к БД 
+├── main.py                         # ТОЧКА ВХОДА
+├── alembic.ini                     # Конфигурация Alembic
+├── pytest.ini                      # Конфигурация pytest
+├── .env                            # Переменные окружения 
+└── .env.example                    # Шаблон переменных окружения
+```
+
+## Описание эндпоинтов
+
+
+### Административные эндпоинты `/api/v1/admin`
+| Метод |	URL	| Описание |
+|---|---|---|
+| POST |	`/api/v1/admin/generate-employees` |	Создаёт 165 тестовых сотрудников из заготовленного списка |
+| DELETE |	`/api/v1/admin/delete-all-employees` |  Удаляет все записи из таблицы сотрудников |
+
+### Эндпоинты сотрудников `/api/v1/employees`
+
+| Метод |	URL |	Описание |
+|---|---|---|
+| GET |	`/api/v1/employees` |	Список сотрудников с пагинацией, фильтрацией и поиском |
+| POST |	`/api/v1/employees` |	Создаёт пустую запись сотрудника (черновик) и возвращает ID |
+| GET |	`/api/v1/employees/{id}` |	Получение данных сотрудника по ID |
+| PUT |	`/api/v1/employees/{id}` |	Обновление данных сотрудника |
+| DELETE |	`/api/v1/employees/{id}` |	Удаление сотрудника |
+| POST |	`/employees/{id}/upload-photo` |	Загрузка фотографии сотрудника|
+
+### Веб-интерфейс
+| Метод |	URL |	Описание |
+|---|---|---|
+| GET |	`/` | Главная страница со списком сотрудников|
+| GET |	`/{id}` |	Страница редактирования сотрудника|
+
+### Документация
+
+| Метод |	URL |	Описание |
+|---|---|---|
+| GET |	`/docs` |	Swagger UI с автоматической документацией API |
+
