@@ -50,7 +50,7 @@ async def generate_employees(db:Annotated[AsyncSession, Depends(get_async_sessio
         "errors": errors,
     }
 
-@router.post("/delete-all-employees")
+@router.delete("/delete-all-employees")
 async def delete_employees( db:Annotated[AsyncSession, Depends(get_async_session)],
                             r_u_sure:bool=False):
     sql = Delete(e_models.Employee)
