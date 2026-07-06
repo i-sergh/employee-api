@@ -4,7 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from employee.router import router as employee_router
 from web.router import router as web_router
-#from endpoints.messages import router as messages_router
+from admin.router import router as admin_router
+from config import STATIC_DIR
 
 
 app = FastAPI(
@@ -20,9 +21,12 @@ app.add_middleware(
 )
 
 app.include_router(employee_router, prefix='/api/v1')
+app.include_router(admin_router, prefix='/api/v1')
 app.include_router(web_router)
 
-app.mount("/static", StaticFiles(directory="web/static"), name="static")
+
+
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 @app.get("/ping")
 def ping():
